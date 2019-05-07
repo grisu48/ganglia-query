@@ -115,44 +115,55 @@ func toUTF8(data []byte) []byte {
 
 func main() {
 	args := os.Args
-	port := 8649
 	if len(args) < 2 {
-		fmt.Printf("Usage: %s REMOTE [PORT]\n  REMOTE is a ganglia server\n  PORT defines the port to query (default: %d)\n", args[0], port)
+		fmt.Printf("Usage: %s REMOTE[:PORT][,REMOTE[:PORT]]\n  REMOTE is a ganglia server, PORT (optionally) defines the port to query (default: %d)\n", args[0], 8649)
+		fmt.Printf("       Multiple remote configurations are possible and then listed after each other\n")
 		return
 	}
+	
+	
+	for _, arg := range(args[1:]) {
+		port := 8649
+		remote := arg
+		
+		if i := strings.Index(remote, ":"); i > -1 {
+			remote = arg[:i]
+			port, _ = strconv.Atoi(arg[i+1:])
+		}
+		
+		remote = remote + ":" + strconv.Itoa(port)
+		conn, err := net.Dial("tcp", remote)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Connection error: ", err)
+			os.Exit(1)
+		}
+		defer conn.Close()
+		// Read from conn
+		data, err := readStream(bufio.NewReader(conn))
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error reading file: \n", err)
+			os.Exit(1)
+		}
 
-	remote := args[1] + ":" + strconv.Itoa(port)
-	conn, err := net.Dial("tcp", remote)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Connection error: ", err)
-		os.Exit(1)
-	}
-	defer conn.Close()
-	// Read from conn
-	data, err := readStream(bufio.NewReader(conn))
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error reading file: \n", err)
-		os.Exit(1)
-	}
+		data = toUTF8(data)	// Hack: Replace "ISO-8859-1" to "UTF-8" in order to make it work with XML
+		// Parse XML
+		var ganglia GangliaXML
+		if err := xml.Unmarshal(data, &ganglia); err != nil {
+	 		fmt.Fprintln(os.Stderr, "Error parsing xml: ", err)
+	 		return
+	 	}
 
-	// Hack: Replace "ISO-8859-1" to "UTF-8" in order to make it work with XML
-	data = toUTF8(data)
+	 	fmt.Printf("Cluster: %s\n\n", ganglia.Cluster.Name);
+	 	hosts := ganglia.Cluster.Hosts
+	 	sort.Slice(hosts, func(i, j int) bool { return strings.Compare(hosts[i].Name, hosts[j].Name) < 0 })
 
-	// Parse XML
-	var ganglia GangliaXML
-	if err := xml.Unmarshal(data, &ganglia); err != nil {
- 		fmt.Fprintln(os.Stderr, "Error parsing xml: ", err)
- 		return
- 	}
-
- 	fmt.Printf("Cluster: %s\n", ganglia.Cluster.Name);
- 	hosts := ganglia.Cluster.Hosts
- 	sort.Slice(hosts, func(i, j int) bool { return strings.Compare(hosts[i].Name, hosts[j].Name) < 0 })
-
- 	// Header
- 	fmt.Printf("%23s\t%20s%7s\t%7s\t%14s\n", "Host", "Last Update", "CPU", "Memory", "Load (1-5-15)")
- 	for _, host := range hosts {
- 		fmt.Printf("%s\n", HostRow(host))
+	 	// Header
+	 	fmt.Printf("%-23s\t%20s%7s\t%7s\t%16s\n", "Host", "Last Update", "CPU", "Memory", "Load (1-5-15)")
+	 	fmt.Println("--------------------------------------------------------------------------------")
+	 	for _, host := range hosts {
+	 		fmt.Printf("%s\n", HostRow(host))
+	 	}
+	 	fmt.Println("--------------------------------------------------------------------------------")
  	}
 
 }
