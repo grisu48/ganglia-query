@@ -1,5 +1,7 @@
 # ganglia-query
 
+[![Build Status](https://travis-ci.org/grisu48/ganglia-query.svg?branch=master)](https://travis-ci.org/grisu48/ganglia-query)
+
 This is a small go project to read out a `gmond` instance with enabled `tcp` server
 
 ## Usage
