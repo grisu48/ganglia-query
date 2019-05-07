@@ -44,6 +44,9 @@ func HostRow(host Host) string {
 	cpu := -1.0
 	mem_tot := 0.0
 	mem_free := 0.0
+	load1 := -1.0
+	load5 := -1.0
+	load15 := -1.0
 
 	// Get relevant metrics
 	for _, metric := range host.Metrics {
@@ -57,6 +60,15 @@ func HostRow(host Host) string {
 		if metric.Name == "mem_total" {
 			mem_tot, _ = strconv.ParseFloat(metric.Value, 32)
 		}
+		if metric.Name == "load_one" {
+			load1, _ = strconv.ParseFloat(metric.Value, 32)
+		}
+		if metric.Name == "load_five" {
+			load5, _ = strconv.ParseFloat(metric.Value, 32)
+		}
+		if metric.Name == "load_fifteen" {
+			load15, _ = strconv.ParseFloat(metric.Value, 32)
+		}
 	}
 
 	mem := -1.0
@@ -67,7 +79,7 @@ func HostRow(host Host) string {
 	then := time.Unix(host.Time, 0)		// In UTC
 	time := then.Format("2006-01-02-15:04:05")
 
-	return fmt.Sprintf("%20s\t%15s\t%20s%5.0f %%\t%5.1f %%", host.Name, host.Ip, time, cpu, mem)
+	return fmt.Sprintf("%20s\t%15s\t%20s%5.0f %%\t%5.1f %%\t%5.1f %5.1f %5.1f", host.Name, host.Ip, time, cpu, mem, load1, load5, load15)
 }
 
 func readStream(reader io.Reader) ([]byte, error) {
@@ -136,7 +148,7 @@ func main() {
  	sort.Slice(hosts, func(i, j int) bool { return strings.Compare(hosts[i].Name, hosts[j].Name) < 0 })
 
  	// Header
- 	fmt.Printf("%20s\t%15s\t%20s%7s\t%7s\n", "Host", "Ip", "Last Update", "CPU", "Memory")
+ 	fmt.Printf("%20s\t%15s\t%20s%7s\t%7s\t%17s\n", "Host", "Ip", "Last Update", "CPU", "Memory", "Load (1-5-15)")
  	for _, host := range hosts {
  		fmt.Printf("%s\n", HostRow(host))
  	}
