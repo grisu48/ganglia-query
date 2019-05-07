@@ -80,7 +80,8 @@ func HostRow(host Host) string {
 	then := time.Unix(host.Time, 0)		// In UTC
 	time := then.Format("2006-01-02-15:04:05")
 
-	return fmt.Sprintf("%25s\t%15s\t%20s%5.0f %%\t%5.1f %%\t%5.1f %5.1f %5.1f", host.Name, host.Ip, time, cpu, mem*100.0, load1, load5, load15)
+	//return fmt.Sprintf("%25s\t%15s\t%20s%5.0f %%\t%5.1f %%\t%5.1f %5.1f %5.1f", host.Name, host.Ip, time, cpu, mem*100.0, load1, load5, load15)
+	return fmt.Sprintf("%-23s\t%20s%5.0f%%\t%5.1f%%\t%4.1f  %4.1f  %4.1f", host.Name, time, cpu, mem*100.0, load1, load5, load15)
 }
 
 func readStream(reader io.Reader) ([]byte, error) {
@@ -149,7 +150,7 @@ func main() {
  	sort.Slice(hosts, func(i, j int) bool { return strings.Compare(hosts[i].Name, hosts[j].Name) < 0 })
 
  	// Header
- 	fmt.Printf("%25s\t%15s\t%20s%7s\t%7s\t%17s\n", "Host", "Ip", "Last Update", "CPU", "Memory", "Load (1-5-15)")
+ 	fmt.Printf("%23s\t%20s%7s\t%7s\t%14s\n", "Host", "Last Update", "CPU", "Memory", "Load (1-5-15)")
  	for _, host := range hosts {
  		fmt.Printf("%s\n", HostRow(host))
  	}
