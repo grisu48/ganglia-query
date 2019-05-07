@@ -113,7 +113,7 @@ func main() {
 	// Read from conn
 	data, err := readStream(bufio.NewReader(conn))
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error reading file: %s\n", err)
+		fmt.Fprintln(os.Stderr, "Error reading file: \n", err)
 		os.Exit(1)
 	}
 
