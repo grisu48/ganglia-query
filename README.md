@@ -1,19 +1,19 @@
-# ganglia-query
+# gmon - ganglia-query
 
 [![Build Status](https://travis-ci.org/grisu48/ganglia-query.svg?branch=master)](https://travis-ci.org/grisu48/ganglia-query)
 
-This is a small go project to read out a `gmond` instance with enabled `tcp` server
+This is a small go project to read the current stats provided by a [ganglia](http://ganglia.sourceforge.net/) instance with enabled `tcp` channel (read from `gmond`, thus the name `gmon`).
 
 ## Usage
 
-    ./ganglia REMOTE[:PORT][,REMOTE[:PORT]]
-    e.g. ./ganglia cluster1 cluster2:8922
+    ./gmon REMOTE[:PORT][,REMOTE[:PORT]]
+    e.g. ./gmon cluster1 cluster2:8922
 
-ganglia establishes a tcp connection to the `gmond`-server, fetches the XML contents and prints the stats as console-friendly table.
+`gmon` establishes a tcp connection to the given `gmond` remote, receives the XML contents and prints the stats as console-friendly table.
 
 ### Example
 
-    ~/git/ganglia-query$ ./ganglia beowulf-cluster server-farm
+    ~/git/ganglia-query$ ./gmon beowulf-cluster server-farm
     Cluster: beowulf-cluster
     
     Host                   	         Last Update 	CPU 	Memory	   Load (1-5-15)
@@ -39,8 +39,8 @@ ganglia establishes a tcp connection to the `gmond`-server, fetches the XML cont
 
 ## Compile
 
-    go build ganglia
+    go build gmon
 
 Requirements
 
-* `go >= 1.10.x`
+* `go >= 1.8.x`

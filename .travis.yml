@@ -1,13 +1,16 @@
 language: go
 
 go:
+  - 1.8.x
+  - 1.9.x
   - 1.10.x
   - 1.11.x
   - 1.12.x
 
 
 dist:
+  - trusty
   - xenial
 
 script:
-  - go build ganglia.go
+  - go build gmon.go
