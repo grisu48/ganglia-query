@@ -63,6 +63,7 @@ func HostRow(host Host, useColors bool) string {
 	cpu := -1.0
 	mem_tot := 0.0
 	mem_free := 0.0
+	mem_cached := 0.0
 	load1 := -1.0
 	load5 := -1.0
 	load15 := -1.0
@@ -76,6 +77,9 @@ func HostRow(host Host, useColors bool) string {
 		}
 		if metric.Name == "mem_free" {
 			mem_free, _ = strconv.ParseFloat(metric.Value, 32)
+		}
+		if metric.Name == "mem_cached" {
+			mem_cached, _ = strconv.ParseFloat(metric.Value, 32)
 		}
 		if metric.Name == "mem_total" {
 			mem_tot, _ = strconv.ParseFloat(metric.Value, 32)
@@ -96,7 +100,7 @@ func HostRow(host Host, useColors bool) string {
 
 	mem := -1.0
 	if mem_tot > 0 && mem_free > 0 {
-		mem_used := mem_tot - mem_free
+		mem_used := mem_tot - mem_free - mem_cached
 		mem = mem_used/mem_tot
 	}
 
@@ -108,7 +112,7 @@ func HostRow(host Host, useColors bool) string {
 		ret += fmt.Sprintf("%s", condIf( time.Since(then).Hours()>1,KRED,KGRN))
 		ret += fmt.Sprintf("%20s", stime)
 		ret += fmt.Sprintf("%s", KNRM)
-		ret += fmt.Sprintf("%s", condIf( cpu<0,KRED, condIf(cpu<25, KYEL, KGRN)))
+		ret += fmt.Sprintf("%s", condIf( cpu<0,KRED, condIf(cpu<25, KBLU, KGRN)))
 		ret += fmt.Sprintf("%5.0f%%\t", cpu)
 		ret += fmt.Sprintf("%s", KNRM)
 		ret += fmt.Sprintf("%s", condIf( mem<0,KRED, condIf(mem>0.8, KRED, condIf(mem>0.6, KYEL, KGRN))))
@@ -119,11 +123,11 @@ func HostRow(host Host, useColors bool) string {
 		fload5 := load5 / float64(cpu_num)
 		fload15 := load15 / float64(cpu_num)
 
-		ret += fmt.Sprintf("%s", condIf( fload1<0,KRED, condIf(fload1>0.8, KRED, condIf(fload1>0.6, KYEL, KGRN))))
+		ret += fmt.Sprintf("%s", condIf( fload1<0,KRED, condIf(fload1<0.25, KBLU, KGRN)))
 		ret += fmt.Sprintf("%4.1f  ", load1)
-		ret += fmt.Sprintf("%s", condIf( fload5<0,KRED, condIf(fload5>0.8, KRED, condIf(fload5>0.6, KYEL, KGRN))))
+		ret += fmt.Sprintf("%s", condIf( fload5<0,KRED, condIf(fload5<0.25, KBLU, KGRN)))
 		ret += fmt.Sprintf("%4.1f  ", load5)
-		ret += fmt.Sprintf("%s", condIf( fload15<0,KRED, condIf(fload15>0.8, KRED, condIf(fload15>0.6, KYEL, KGRN))))
+		ret += fmt.Sprintf("%s", condIf( fload15<0,KRED, condIf(fload15<0.25, KBLU, KGRN)))
 		ret += fmt.Sprintf("%4.1f", load15)
 		ret += fmt.Sprintf("%s", KNRM)
 		return ret
