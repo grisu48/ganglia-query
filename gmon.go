@@ -108,20 +108,36 @@ func HostRow(host Host, useColors bool) string {
 	stime := then.Format("2006-01-02-15:04:05")
 
 	if useColors {
-		ret := fmt.Sprintf("%-23s\t", host.Name)
-		ret += fmt.Sprintf("%s", condIf( time.Since(then).Hours()>1,KRED,KGRN))
-		ret += fmt.Sprintf("%20s", stime)
-		ret += fmt.Sprintf("%s", KNRM)
-		ret += fmt.Sprintf("%s", condIf( cpu<0,KRED, condIf(cpu<25, KBLU, KGRN)))
-		ret += fmt.Sprintf("%5.0f%%\t", cpu)
-		ret += fmt.Sprintf("%s", KNRM)
-		ret += fmt.Sprintf("%s", condIf( mem<0,KRED, condIf(mem>0.8, KRED, condIf(mem>0.6, KYEL, KGRN))))
-		ret += fmt.Sprintf("%5.1f%%\t", mem*100.0)
-		ret += fmt.Sprintf("%s", KNRM)
-
 		fload1 := load1 / float64(cpu_num)
 		fload5 := load5 / float64(cpu_num)
 		fload15 := load15 / float64(cpu_num)
+
+		ret := ""
+
+		// Determine overall color
+		if (time.Since(then).Hours()>1) || cpu < 0.0 || mem < 0.0 || mem > 0.8 || fload1<0 || fload5<0 || fload15<0 {
+			ret += fmt.Sprintf("%s", KRED)
+		} else if mem > 0.6 {
+			ret += fmt.Sprintf("%s", KYEL)
+		} else if cpu < 25 {
+			ret += fmt.Sprintf("%s", KBLU)
+		} else if cpu > 75 {
+			ret += fmt.Sprintf("%s", KGRN)
+		} else {
+			ret += fmt.Sprintf("%s", KWHT)
+		}
+
+		ret += fmt.Sprintf("%-23s\t", host.Name)
+
+		ret += fmt.Sprintf("%s", condIf( time.Since(then).Hours()>1,KRED,KGRN))
+		ret += fmt.Sprintf("%20s", stime)
+		//ret += fmt.Sprintf("%s", KNRM)
+		ret += fmt.Sprintf("%s", condIf( cpu<0,KRED, condIf(cpu<25, KBLU, KGRN)))
+		ret += fmt.Sprintf("%5.0f%%\t", cpu)
+		//ret += fmt.Sprintf("%s", KNRM)
+		ret += fmt.Sprintf("%s", condIf( mem<0,KRED, condIf(mem>0.8, KRED, condIf(mem>0.6, KYEL, KGRN))))
+		ret += fmt.Sprintf("%5.1f%%\t", mem*100.0)
+		//ret += fmt.Sprintf("%s", KNRM)
 
 		ret += fmt.Sprintf("%s", condIf( fload1<0,KRED, condIf(fload1<0.25, KBLU, KGRN)))
 		ret += fmt.Sprintf("%4.1f  ", load1)
