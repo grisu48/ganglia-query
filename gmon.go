@@ -119,7 +119,7 @@ func HostRow(host Host, useColors bool) string {
 			ret += fmt.Sprintf("%s", KRED)
 		} else if mem > 0.6 {
 			ret += fmt.Sprintf("%s", KYEL)
-		} else if cpu < 25 {
+		} else if cpu < 25 && mem < 0.1 {
 			ret += fmt.Sprintf("%s", KBLU)
 		} else if cpu > 75 {
 			ret += fmt.Sprintf("%s", KGRN)
@@ -135,7 +135,7 @@ func HostRow(host Host, useColors bool) string {
 		ret += fmt.Sprintf("%s", condIf( cpu<0,KRED, condIf(cpu<25, KBLU, KGRN)))
 		ret += fmt.Sprintf("%5.0f%%\t", cpu)
 		//ret += fmt.Sprintf("%s", KNRM)
-		ret += fmt.Sprintf("%s", condIf( mem<0,KRED, condIf(mem>0.8, KRED, condIf(mem>0.6, KYEL, KGRN))))
+		ret += fmt.Sprintf("%s", condIf( mem<0,KRED, condIf(mem>0.8, KRED, condIf(mem>0.6, KYEL, condIf(mem<0.1, KBLU, KGRN)))))
 		ret += fmt.Sprintf("%5.1f%%\t", mem*100.0)
 		//ret += fmt.Sprintf("%s", KNRM)
 
