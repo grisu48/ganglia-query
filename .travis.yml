@@ -11,6 +11,3 @@ go:
 
 dist:
   - xenial
-
-script:
-  - go build gmon.go
