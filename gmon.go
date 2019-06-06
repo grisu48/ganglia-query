@@ -14,7 +14,7 @@ import (
 	"strings"
 	"strconv"
 	"encoding/xml"
-	"golang.org/x/crypto/ssh/terminal"
+	//"golang.org/x/crypto/ssh/terminal"
 )
 
 // Terminal color codes
@@ -169,7 +169,7 @@ func main() {
 		return
 	}
 	
-	useColors := terminal.IsTerminal(int(os.Stdout.Fd()))
+	useColors := true //terminal.IsTerminal(int(os.Stdout.Fd()))
 	for _, arg := range(args[1:]) {
 		port := 8649
 		remote := arg
